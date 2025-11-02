@@ -63,3 +63,35 @@ test "Si Sora equipa la “Examinadora” (llave espada con 1 de poder físico y
 test "Si Mickey intenta lanzar Ragnarok a un umbrío con PV iniciales, no puede, dado que no cuenta con suficientes PM."{
 	assert.throwsException({ mickey.lanzarHechizo(umbrio, new Ragnarok()) })
 }
+
+// Parte 4
+
+test "Si Ventus ataca físicamente a un nocturno rojo con PV iniciales, éste queda con 71 PV." {
+	ventus.realizarAtaqueFisico(nocturnoRojo)
+	assert.equals(71, nocturnoRojo.puntosDeVida())
+}
+test "Si Ventus lanza Chispa a un nocturno rojo con PV iniciales, éste queda con 75 PV, y Ventus queda con 6 PM."{
+	ventus.lanzarHechizo(nocturnoRojo, new Chispa())
+	assert.equals(6, ventus.puntosDeMana())
+	assert.equals(75, nocturnoRojo.puntosDeVida())
+}
+test "Si Roxas ataca físicamente a un umbrío con PV iniciales cinco veces, éste queda con 45 PV, dado que c/u restó el mínimo de 1 punto. Si lo ataca una sexta vez, ahora el umbrío queda con 43 PV, dado que este ataque ahora tiene 12 de potencia."{
+	roxas.realizarAtaqueFisico(umbrio)
+	roxas.realizarAtaqueFisico(umbrio)
+	roxas.realizarAtaqueFisico(umbrio)
+	roxas.realizarAtaqueFisico(umbrio)
+	roxas.realizarAtaqueFisico(umbrio)
+	assert.equals(45,umbrio.puntosDeVida())
+	roxas.realizarAtaqueFisico(umbrio)
+	assert.equals(43,umbrio.puntosDeVida())
+}
+test "Si Roxas lanza Chispa a un nocturno rojo con PV iniciales cinco veces, éste queda con 55 PV. Si lo lanza una sexta vez, ahora tiene 40 PV, dado que este ataque ahora tiene potencia 15."{
+	roxas.lanzarHechizo(nocturnoRojo, new Chispa())
+	roxas.lanzarHechizo(nocturnoRojo, new Chispa())
+	roxas.lanzarHechizo(nocturnoRojo, new Chispa())
+	roxas.lanzarHechizo(nocturnoRojo, new Chispa())
+	roxas.lanzarHechizo(nocturnoRojo, new Chispa())
+	assert.equals(55,nocturnoRojo.puntosDeVida())
+	roxas.lanzarHechizo(nocturnoRojo, new Chispa())
+	assert.equals(40,nocturnoRojo.puntosDeVida())
+}

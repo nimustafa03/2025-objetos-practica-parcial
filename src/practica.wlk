@@ -44,7 +44,7 @@ object elementoOscuridad{
 // Razas
 object incorporeo{
     method calcularDaño(enemigo, ataque) {
-        const daño = (ataque.potencia() - enemigo.valorDeDefensa()).abs()
+        const daño = (ataque.potencia() - enemigo.valorDeDefensa()).max(1)
         return daño
     }
 }
@@ -93,9 +93,8 @@ class Heroe{
     var property puntosDeMana
     var property fuerza
     var property espada
-    var property ataqueFisico = new AtaqueFisico(potencia = fuerza + espada.poderFisico())
     method realizarAtaqueFisico(enemigo){
-        enemigo.recibirAtaque(ataqueFisico, self)
+        enemigo.recibirAtaque(new AtaqueFisico(potencia = fuerza + espada.poderFisico()), self)
     }
     method lanzarHechizo(enemigo, hechizo){
         if (puntosDeMana > hechizo.potencia()){
@@ -103,7 +102,7 @@ class Heroe{
             hechizo.potencia(hechizo.potencia()*espada.poderMagico())
             enemigo.recibirAtaque(hechizo, self)
             }
-            throw new ExcepcionPMInsuficiente()
+            else {throw new ExcepcionPMInsuficiente()}
     }
     method descansar() { self.puntosDeMana(30) }
 }
@@ -138,3 +137,77 @@ class Equipo {
     }
 }
 
+object ventus inherits Heroe(fuerza = 8, puntosDeMana=7, espada=brisaDescarada) {
+    override method realizarAtaqueFisico(enemigo) {
+        enemigo.recibirAtaque(new AtaqueFisico(potencia = fuerza + espada.poderMagico()), self)
+    }
+    override method lanzarHechizo(enemigo, hechizo){
+        if (puntosDeMana > hechizo.potencia()){
+            self.puntosDeMana((puntosDeMana-hechizo.potencia()).max(0))
+            hechizo.potencia(hechizo.potencia()*espada.poderFisico())
+            enemigo.recibirAtaque(hechizo, self)
+            }
+            else {throw new ExcepcionPMInsuficiente()}
+    }
+}
+object modoTranquilo{
+    method realizarAtaqueFisico(enemigo,atacante){
+        enemigo.recibirAtaque(new AtaqueFisico(potencia = atacante.fuerza() + atacante.espada().poderFisico()), atacante)
+    }
+    method lanzarHechizo(enemigo,hechizo,atacante){
+        if (atacante.puntosDeMana() > hechizo.potencia()){
+            atacante.puntosDeMana((atacante.puntosDeMana()-hechizo.potencia()).max(0))
+            hechizo.potencia(hechizo.potencia()*atacante.espada().poderMagico())
+            enemigo.recibirAtaque(hechizo, self)
+            }
+            else {throw new ExcepcionPMInsuficiente()}
+    }
+}
+object modoValiente{
+    method realizarAtaqueFisico(enemigo,atacante){
+        enemigo.recibirAtaque(new AtaqueFisico(potencia = (atacante.fuerza() + atacante.espada().poderFisico())* 1.5), atacante)
+    }
+    method lanzarHechizo(enemigo,hechizo,atacante){
+        if (atacante.puntosDeMana() > hechizo.potencia()){
+            atacante.puntosDeMana((atacante.puntosDeMana()-hechizo.potencia()).max(0))
+            hechizo.potencia((hechizo.potencia()*atacante.espada().poderMagico())*0.8)
+            enemigo.recibirAtaque(hechizo, self)
+            }
+            else {throw new ExcepcionPMInsuficiente()}
+    }
+}
+object modoSabio{
+    method realizarAtaqueFisico(enemigo,atacante){
+        enemigo.recibirAtaque(new AtaqueFisico(potencia = (atacante.fuerza() + atacante.espada().poderFisico())* 0.3), atacante)
+    }
+    method lanzarHechizo(enemigo,hechizo,atacante){
+        if (atacante.puntosDeMana() > hechizo.potencia()){
+            atacante.puntosDeMana((atacante.puntosDeMana()-hechizo.potencia()).max(0))
+            hechizo.potencia((hechizo.potencia()*atacante.espada().poderMagico())*3)
+            enemigo.recibirAtaque(hechizo, self)
+            }
+            else {throw new ExcepcionPMInsuficiente()}
+    }
+}
+object roxas inherits Heroe(fuerza = 5, puntosDeMana= 20, espada = llaveDelReino){
+    var property modo = modoTranquilo
+    var property cantAtaquesFisicosConsecutivos = 0
+    var property cantHechizosConsecutivos = 0
+    method cambiarModo() {
+        if (cantAtaquesFisicosConsecutivos == 5) { self.modo(modoValiente) }
+        if (cantHechizosConsecutivos == 5) { self.modo(modoSabio) }
+        if (cantAtaquesFisicosConsecutivos < 5 && cantHechizosConsecutivos < 5) { self.modo(modoTranquilo)}
+    }
+    override method realizarAtaqueFisico(enemigo){ 
+        modo.realizarAtaqueFisico(enemigo,self)
+        self.cantHechizosConsecutivos(0)
+        self.cantAtaquesFisicosConsecutivos((cantAtaquesFisicosConsecutivos + 1).min(5))
+        self.cambiarModo()
+    }
+    override method lanzarHechizo(enemigo,hechizo){
+        modo.lanzarHechizo(enemigo, hechizo, self)
+        self.cantAtaquesFisicosConsecutivos(0)
+        self.cantHechizosConsecutivos((cantHechizosConsecutivos+1).min(5))
+        self.cambiarModo()
+    }
+}
