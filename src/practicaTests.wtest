@@ -3,38 +3,63 @@ import practica.*
 test "Test de ejemplo" {
 		assert.equals(4, 2 + 2)
 }
+object dud {}
+object umbrio inherits Enemigo(miRaza = incorporeo, miElemento = elementoOscuridad, valorDeDefensa = 10.0, puntosDeVida = 50.0){}
+object nocturnoRojo inherits Enemigo(miRaza = sinCorazon, miElemento = elementoFuego, puntosDeVida = 80){}
+object rapsodiaAzul inherits Enemigo(miRaza = sinCorazon, miElemento = elementoHielo, puntosDeVida = 80){}
+object laExaminadora inherits Espada(poderFisico = 1, poderMagico = 10){}
+// Parte 1 
 
 test "El umbrío es un incorpóreo oscuro, con 10 de defensa, y comienza con 50 PV. Queda con 40 de vida luego de recibir un ataque físico de potencia 20." {
-	const umbrio = new Enemigo(miRaza = incorporeo, miElemento = elementoOscuridad, valorDeDefensa = 10.0, puntosDeVida = 50.0)
 	const ataque = new AtaqueFisico(potencia = 20)
-	umbrio.recibirAtaque(ataque)
+	umbrio.recibirAtaque(ataque, dud)
 	assert.equals(40, umbrio.puntosDeVida())
 }
 
 test "El nocturno rojo es un sincorazón de fuego que comienza con 80 PV. Queda con 80 de vida luego de recibir un ataque mágico de fuego de potencia 100." {
-	const nocturnoRojo = new Enemigo(miRaza = sinCorazon, miElemento = elementoFuego, puntosDeVida = 80)
 	const ataque = new Hechizo(elemento = elementoFuego, potencia = 100.0)
-	nocturnoRojo.recibirAtaque(ataque)
+	nocturnoRojo.recibirAtaque(ataque, dud)
 	assert.equals(80, nocturnoRojo.puntosDeVida())
 }
 
 test "El nocturno rojo queda con 60 PV luego de recibir un ataque mágico de hielo de potencia 10."{
-	const nocturnoRojo = new Enemigo(miRaza = sinCorazon, miElemento = elementoFuego, puntosDeVida = 80)
 	const ataque = new Hechizo(elemento = elementoHielo, potencia = 10.0)
-	nocturnoRojo.recibirAtaque(ataque)
+	nocturnoRojo.recibirAtaque(ataque, dud)
 	assert.equals(60, nocturnoRojo.puntosDeVida())
 }
 
 test "El nocturno rojo queda con 70 PV luego de recibir un ataque mágico de luz de potencia 10."{
-	const nocturnoRojo = new Enemigo(miRaza = sinCorazon, miElemento = elementoFuego, puntosDeVida = 80)
 	const ataque = new Hechizo(elemento = elementoLuz, potencia = 10.0)
-	nocturnoRojo.recibirAtaque(ataque)
+	nocturnoRojo.recibirAtaque(ataque,dud)
 	assert.equals(70, nocturnoRojo.puntosDeVida())
 }
 
 test "El nocturno rojo queda con 44 PV luego de recibir un ataque físico de potencia 40." {
-	const nocturnoRojo = new Enemigo(miRaza = sinCorazon, miElemento = elementoFuego, puntosDeVida = 80)
 	const ataque = new AtaqueFisico(potencia = 40)
-	nocturnoRojo.recibirAtaque(ataque)
+	nocturnoRojo.recibirAtaque(ataque, dud)
 	assert.equals(44,nocturnoRojo.puntosDeVida())
+}
+
+// Parte 2
+
+test "Si Sora ataca físicamente a un umbrío con PV iniciales, éste queda con 47 PV." {
+	sora.realizarAtaqueFisico(umbrio)
+	assert.equals(47,umbrio.puntosDeVida())
+}
+test "Si Riku ataca físicamente a un nocturno rojo con PV iniciales, éste queda con 62 PV."{
+	riku.realizarAtaqueFisico(nocturnoRojo)
+	assert.equals(62,nocturnoRojo.puntosDeVida())
+}
+test "Si Sora lanza Piro a un rapsodia azul (igual al nocturno rojo, pero de elemento hielo) con PV iniciales, éste queda con 30 PV y Sora queda con 3 PM."{
+	sora.lanzarHechizo(rapsodiaAzul, new Piro())
+	assert.equals(30,rapsodiaAzul.puntosDeVida())
+	assert.equals(3, sora.puntosDeMana())
+}
+test "Si Sora equipa la “Examinadora” (llave espada con 1 de poder físico y 10 de poder mágico) y lanza Piro a un rapsodia azul con PV iniciales, éste queda con 0 PV." {
+	sora.espada(laExaminadora)
+	sora.lanzarHechizo(rapsodiaAzul, new Piro())
+	assert.equals(0, rapsodiaAzul.puntosDeVida())
+}
+test "Si Mickey intenta lanzar Ragnarok a un umbrío con PV iniciales, no puede, dado que no cuenta con suficientes PM."{
+	assert.throwsException({ mickey.lanzarHechizo(umbrio, new Ragnarok()) })
 }
